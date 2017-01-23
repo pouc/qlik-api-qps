@@ -1,28 +1,28 @@
 {
-  "name": "node-template",
-  "version": "1.0.11",
-  "description": "a template for all my node projects",
+  "name": "qlik-api-qps",
+  "version": "1.0.12",
+  "description": "nodejs wrapper for the Qlik Sense QPS API",
   "main": "index.js",
   "scripts": {
     "test": "mocha"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pouc/node-template.git"
+    "url": "git+https://github.com/pouc/qlik-api-qps.git"
   },
   "author": "pouc",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pouc/node-template/issues"
+    "url": "https://github.com/pouc/qlik-api-qps/issues"
   },
-  "homepage": "https://github.com/pouc/node-template#readme",
+  "homepage": "https://github.com/pouc/qlik-api-qps#readme",
   "devDependencies": {
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "chai-things": "^0.2.0",
+    "coveralls": "^2.11.15",
     "grunt": "^1.0.1",
     "grunt-bump": "^0.8.0",
-    "grunt-coveralls": "^1.0.1",
     "grunt-jscs": "^3.0.1",
     "grunt-jsdoc-to-markdown": "^2.0.0",
     "grunt-mocha-istanbul": "^5.0.2",
@@ -30,7 +30,13 @@
     "grunt-simple-mocha": "^0.4.1",
     "istanbul": "^0.4.5",
     "mocha": "^3.2.0",
+    "q": "^1.4.1",
+    "qlik-fake-proxy": "^1.1.9",
     "sinon": "^1.17.7",
     "sinon-chai": "^2.8.0"
+  },
+  "dependencies": {
+    "ifnotundef": "^1.0.16",
+    "qlik-request": "^1.1.2"
   }
 }
