@@ -268,8 +268,30 @@ describe('qps API...', function() {
 		});
 		
 	});
-	
-	
+
+    describe('enigma...', () => {
+        var cb = sinon.spy();
+    
+        var enigmaMock = {
+            _services: [],
+            registerService: function(service, connect) {
+                enigmaMock._services[service] = connect;
+                cb(service, connect);
+            },
+            getService: function(service, config) {
+                enigmaMock._services[service](config);
+            }
+        }
+        
+        it('should register', () => {
+            var qps = exports({ qpsRestUri: 'https://localhost:4243/qps' });
+            
+            qps.registerOn(enigmaMock)
+            expect(cb).to.have.been.called;
+            
+            enigmaMock.getService('qps', {});
+        })
+    })
 
 
 });

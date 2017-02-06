@@ -86,6 +86,11 @@ module.exports = function(options) {
 
         restUri: generateRestUri,
 
+        registerOn: function(enigma) {
+            var qps = new Qps();
+            enigma.registerService('qps', qps.connect.bind(qps));
+        },
+
         /**
          * @namespace
          * @memberOf Qlik.apis.qps
@@ -246,3 +251,28 @@ module.exports = function(options) {
         }
     };
 };
+
+class Qps {
+    constructor() {}
+
+    connect(config) {
+
+        undef.try(config);
+
+        var options = {
+            restUri: url.format({
+                protocol: (config.unsecure) ? 'http:' : 'https:',
+                hostname: config.host,
+                port: config.port
+            }),
+            ca: undef.child(config, ['certs', 'ca'], undefined),
+            cert: undef.child(config, ['certs', 'cert'], undefined),
+            key: undef.child(config, ['certs', 'key'], undefined),
+        };
+
+        var qpsApi = module.exports(options);
+        var promise = undef.if(config.promise, global.Promise);
+
+        return promise.resolve(qpsApi);
+    }
+}
