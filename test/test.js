@@ -284,9 +284,7 @@ describe('qps API...', function() {
         }
         
         it('should register', () => {
-            var qps = exports({ qpsRestUri: 'https://localhost:4243/qps' });
-            
-            qps.registerOn(enigmaMock)
+            exports.registerOn(enigmaMock)
             expect(cb).to.have.been.called;
             
             enigmaMock.getService('qps', {});

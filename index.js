@@ -86,11 +86,6 @@ module.exports = function(options) {
 
         restUri: generateRestUri,
 
-        registerOn: function(enigma) {
-            var qps = new Qps();
-            enigma.registerService('qps', qps.connect.bind(qps));
-        },
-
         /**
          * @namespace
          * @memberOf Qlik.apis.qps
@@ -250,6 +245,11 @@ module.exports = function(options) {
             }
         }
     };
+};
+
+module.exports.registerOn = function(enigma) {
+    var qps = new Qps();
+    enigma.registerService('qps', qps.connect.bind(qps));
 };
 
 class Qps {
