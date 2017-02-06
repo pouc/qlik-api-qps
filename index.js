@@ -1,5 +1,8 @@
 var url = require('url');
 
+var extend = require('extend');
+var urljoin = require('url-join');
+
 var undef = require('ifnotundef');
 var qreq = require('qlik-request');
 
@@ -37,24 +40,51 @@ var qreq = require('qlik-request');
  */
 module.exports = function(options) {
 
-    var qpsRestUri = undef.try(undef.if(options.qpsRestUri, options.restUri), 'rest URI is not defined');
-    var parsedQpsRestUri = url.parse(qpsRestUri);
+    var uriOpts = {
+        protocol: 'https:',
+        hostname: 'localhost',
+        port: 4243,
+        pathname: '/qps/',
+    };
 
-    if (typeof options.qpsRestUri === 'undefined') {
-        parsedQpsRestUri.protocol = 'https:';
-        parsedQpsRestUri.pathname = ('/qps' + parsedQpsRestUri.pathname + '/').replace(/\/{2}$/, '/');
-        parsedQpsRestUri.host = undefined;
-        parsedQpsRestUri.port = 4243;
-    } else {
-        parsedQpsRestUri.host = undefined;
-        parsedQpsRestUri.port = undef.if(parsedQpsRestUri.port, 4243);
+    if (undef.isnot(options, 'qpsRestUri')) {
+
+        var parsedQpsRestUri = url.parse(options.qpsRestUri);
+
+        uriOpts.protocol = parsedQpsRestUri.protocol;
+        uriOpts.hostname = parsedQpsRestUri.hostname;
+        uriOpts.port = parsedQpsRestUri.port;
+        uriOpts.pathname = parsedQpsRestUri.pathname;
+
+    } else if (undef.isnot(options, 'restUri')) {
+
+        var parsedRestUri = url.parse(options.restUri);
+
+        uriOpts.hostname = parsedRestUri.hostname;
+
     }
 
-    qpsRestUri = url.format(parsedQpsRestUri);
+    uri = url.format(uriOpts);
+
+    var addOpts = {
+        headers:            undef.child(options, 'headers', undefined),
+
+        ca:                 undef.child(options, 'ca', undefined),
+        cert:               undef.child(options, 'cert', undefined),
+        key:                undef.child(options, 'key', undefined),
+
+        rejectUnauthorized: undef.child(options, 'rejectUnauthorized', true),
+        agent:              undef.child(options, 'agent', false),
+        method:             undef.child(options, 'method', 'GET')
+    };
+
+    function generateRestUri(path) {
+        return undef.is(path) ? uri : urljoin(uri, path);
+    }
 
     return {
 
-        restUri: () => qpsRestUri,
+        restUri: generateRestUri,
 
         /**
          * @namespace
@@ -79,18 +109,10 @@ module.exports = function(options) {
              * @returns {Promise.<Ticket>} a promise resolving to the ticket
              */
             post: function(postParams) {
-                return qreq.request({
-                    restUri: qpsRestUri + '/ticket',
-                    pfx: options.pfx,
-                    passPhrase: options.passPhrase,
-                    key: options.key,
-                    cert: options.cert,
-                    ca: options.ca,
-                    UserId: options.UserId,
-                    UserDirectory: options.UserDirectory,
-                    timeout: undef.if(options.timeout, 60000),
+                return qreq.request(extend(false, {}, addOpts, {
+                    restUri: generateRestUri(`/ticket`),
                     method: 'POST'
-                }, postParams);
+                }), postParams);
             }
         },
         /**
@@ -117,18 +139,9 @@ module.exports = function(options) {
              * @returns {Promise.<Array.<Session>>} a promise resolving to a list of sessions
              */
             get: function(directory, id) {
-                return qreq.request({
-                    restUri: qpsRestUri + '/user/' + directory + '/' + id,
-                    pfx: options.pfx,
-                    passPhrase: options.passPhrase,
-                    key: options.key,
-                    cert: options.cert,
-                    ca: options.ca,
-                    UserId: options.UserId,
-                    UserDirectory: options.UserDirectory,
-                    timeout: undef.if(options.timeout, 60000),
-                    method: 'GET'
-                });
+                return qreq.request(extend(false, {}, addOpts, {
+                    restUri: generateRestUri(`/user/${directory}/${id}`)
+                }));
             },
             /**
              * This is part of the Logout API. The directory and ID are the same UserDirectory and UserId as those that were sent in POST /qps/{virtual proxy/}ticket.
@@ -151,18 +164,10 @@ module.exports = function(options) {
              * @returns {Promise.<Array.<Session>>} a promise resolving to a list of disconnected sessions
              */
             delete: function(directory, id) {
-                return qreq.request({
-                    restUri: qpsRestUri + '/user/' + directory + '/' + id,
-                    pfx: options.pfx,
-                    passPhrase: options.passPhrase,
-                    key: options.key,
-                    cert: options.cert,
-                    ca: options.ca,
-                    UserId: options.UserId,
-                    UserDirectory: options.UserDirectory,
-                    timeout: undef.if(options.timeout, 60000),
+                return qreq.request(extend(false, {}, addOpts, {
+                    restUri: generateRestUri(`/user/${directory}/${id}`),
                     method: 'DELETE'
-                });
+                }));
             }
         },
         /**
@@ -188,18 +193,9 @@ module.exports = function(options) {
              * @returns {Promise.<Session>} a promise resolving to a session
              */
             get: function(id) {
-                return qreq.request({
-                    restUri: qpsRestUri + '/session/' + id,
-                    pfx: options.pfx,
-                    passPhrase: options.passPhrase,
-                    key: options.key,
-                    cert: options.cert,
-                    ca: options.ca,
-                    UserId: options.UserId,
-                    UserDirectory: options.UserDirectory,
-                    timeout: undef.if(options.timeout, 60000),
-                    method: 'GET'
-                });
+                return qreq.request(extend(false, {}, addOpts, {
+                    restUri: generateRestUri(`/session/${id}`)
+                }));
             },
             /**
              * This adds a new proxy session.
@@ -219,18 +215,10 @@ module.exports = function(options) {
              * @returns {Promise.<Session>} a promise resolving to a session
              */
             post: function(postParams) {
-                return qreq.request({
-                    restUri: qpsRestUri + '/session',
-                    pfx: options.pfx,
-                    passPhrase: options.passPhrase,
-                    key: options.key,
-                    cert: options.cert,
-                    ca: options.ca,
-                    UserId: options.UserId,
-                    UserDirectory: options.UserDirectory,
-                    timeout: undef.if(options.timeout, 60000),
+                return qreq.request(extend(false, {}, addOpts, {
+                    restUri: generateRestUri(`/session`),
                     method: 'POST'
-                }, postParams);
+                }), postParams);
             },
             /**
              * This deletes the proxy session identified by {id} and returns it as a session struct.
@@ -250,18 +238,10 @@ module.exports = function(options) {
              * @returns {Promise.<Session>} a promise resolving to the session that was deleted
              */
             delete: function(id) {
-                return qreq.request({
-                    restUri: qpsRestUri + '/session/' + id,
-                    pfx: options.pfx,
-                    passPhrase: options.passPhrase,
-                    key: options.key,
-                    cert: options.cert,
-                    ca: options.ca,
-                    UserId: options.UserId,
-                    UserDirectory: options.UserDirectory,
-                    timeout: undef.if(options.timeout, 60000),
+                return qreq.request(extend(false, {}, addOpts, {
+                    restUri: generateRestUri(`/session/${id}`),
                     method: 'DELETE'
-                });
+                }));
             }
         }
     };

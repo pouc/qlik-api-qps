@@ -61,10 +61,10 @@ describe('qps API...', function() {
 			expect(qps1.restUri()).to.equal('https://localhost:4243/qps');
 			
 			var qps2 = exports({ qpsRestUri: 'https://localhost/qps' });
-			expect(qps2.restUri()).to.equal('https://localhost:4243/qps');
+			expect(qps2.restUri()).to.equal('https://localhost/qps');
 			
 			var qps3 = exports({ qpsRestUri: 'http://localhost' });
-			expect(qps3.restUri()).to.equal('http://localhost:4243/');
+			expect(qps3.restUri()).to.equal('http://localhost/');
 			
 			var qps4 = exports({ qpsRestUri: 'http://localhost:8080/ticket/bli' });
 			expect(qps4.restUri()).to.equal('http://localhost:8080/ticket/bli');
@@ -85,7 +85,7 @@ describe('qps API...', function() {
 			expect(qps3.restUri()).to.equal('https://localhost:4243/qps/');
 			
 			var qps4 = exports({ restUri: 'http://localhost:8080/toto' });
-			expect(qps4.restUri()).to.equal('https://localhost:4243/qps/toto/');
+			expect(qps4.restUri()).to.equal('https://localhost:4243/qps/');
 		
 		});
 		
