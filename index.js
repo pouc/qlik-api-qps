@@ -1,3 +1,5 @@
+'use strict';
+
 var url = require('url');
 
 var extend = require('extend');
@@ -64,7 +66,7 @@ module.exports = function(options) {
 
     }
 
-    uri = url.format(uriOpts);
+    var uri = url.format(uriOpts);
 
     var addOpts = {
         headers:            undef.child(options, 'headers', undefined),
